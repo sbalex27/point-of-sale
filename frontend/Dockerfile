@@ -2,7 +2,7 @@
 FROM node:16
 
 # Establece el directorio de trabajo dentro del contenedor
-WORKDIR /app
+WORKDIR /frontend
 
 # Copia los archivos de package.json y package-lock.json
 COPY package*.json ./
