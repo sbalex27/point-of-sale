@@ -9,6 +9,7 @@ COPY package*.json ./
 
 # Instala las dependencias
 RUN npm install
+RUN mkdir -p node_modules/.cache && chmod -R 777 node_modules/.cache
 
 # Copia el resto de los archivos de la aplicación
 COPY . .
