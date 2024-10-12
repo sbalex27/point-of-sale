@@ -21,7 +21,8 @@ db.serialize(() => {
       CREATE TABLE IF NOT EXISTS productos (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         nombre TEXT NOT NULL,
-        precio REAL NOT NULL
+        precio REAL NOT NULL,
+        codigo TEXT NOT NULL
       )
     `);
   

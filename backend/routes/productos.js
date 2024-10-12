@@ -4,12 +4,15 @@ const db = require('../database');
 
 // Ruta para obtener todos los productos
 router.get('/', (req, res) => {
-  db.all('SELECT * FROM productos', [], (err, rows) => {
+  const { codigo } = req.query
+  db.all('SELECT * FROM productos WHERE codigo LIKE ?', [
+    `%${codigo}%`
+  ], (err, rows) => {
     if (err) {
       res.status(500).json({ error: err.message });
       return;
     }
-    res.json({ productos: rows });
+    res.json(rows);
   });
 });
 
