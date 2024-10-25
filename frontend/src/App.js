@@ -1,50 +1,89 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import ProductTable from './components/ProductTable';
 import Cart from './components/Cart';
 import SearchBar from './components/SearchBar';
-import { Container, Grid } from '@mui/material';
+import { Container, Grid, Box } from '@mui/material';
+
+// Añadimos debounce para mejorar la performance
+const useDebounce = (value, delay) => {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+  
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+};
 
 const App = () => {
-  const [products] = useState([
-    { stock: 35, name: "Eos dolor quia tempora est illo.", code: "63391084", value: 490.96 },
-    { stock: 17, name: "Voluptatem hic et rerum rerum cupiditate aut.", code: "78183711", value: 100.99 },
-    { stock: 54, name: "Maiores voluptatem quis et.", code: "09844995", value: 149.11 },
-    { stock: 29, name: "Quas ut aliquid consequatur minus.", code: "09469242", value: 990.69 },
-    { stock: 90, name: "Molestiae odio a repellat et.", code: "00294614", value: 569.37 },
-    { stock: 23, name: "Sit ipsum qui sit vero.", code: "96038444", value: 826.13 },
-    { stock: 82, name: "Sed explicabo voluptate et et dignissimos ex.", code: "38794988", value: 658.65 },
-    { stock: 36, name: "Est consequatur sint natus occaecati non voluptatem vel et.", code: "11717348", value: 649.75 },
-    { stock: 38, name: "Eaque iusto quia cupiditate sunt voluptas.", code: "21906008", value: 193.71 },
-    { stock: 93, name: "Est dolores velit ut earum ad.", code: "27550885", value: 711.14 }
-  ]);
+  const [products, setProducts] = useState([]);  // Estado para productos
+  const [cart, setCart] = useState([]);  // Estado para el carrito
+  const [searchTerm, setSearchTerm] = useState('');  // Estado para el término de búsqueda
+  const [error, setError] = useState(null);  // Estado para manejar errores
 
-  const [cart, setCart] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  // Usamos el debounce para esperar un poco antes de hacer la petición
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);  // Espera 300ms
 
+  // Petición al backend para obtener productos según el término de búsqueda
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await axios.get(`http://localhost:3001/productos?codigo=${debouncedSearchTerm}`);
+        setProducts(response.data);
+      } catch (err) {
+        setError('Error fetching products');
+        console.error(err);
+      }
+    };
+
+    // Solo hacer la petición si el searchTerm no está vacío
+    if (debouncedSearchTerm) {
+      fetchProducts();
+    } else {
+      setProducts([]);  // Si no hay búsqueda, reseteamos la lista
+    }
+  }, [debouncedSearchTerm]);
+
+  // Función para agregar productos al carrito
   const addToCart = (product) => {
-    const exist = cart.find(item => item.code === product.code);
+    const exist = cart.find(item => item.codigo === product.codigo);
     if (exist) {
       setCart(cart.map(item =>
-        item.code === product.code ? { ...exist, quantity: exist.quantity + 1 } : item
+        item.codigo === product.codigo ? { ...exist, quantity: exist.quantity + 1 } : item
       ));
     } else {
       setCart([...cart, { ...product, quantity: 1 }]);
     }
   };
 
-  const filteredProducts = products.filter(product =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Si hay error, mostramos el mensaje
+  if (error) {
+    return <p>{error}</p>;
+  }
 
   return (
     <Container maxWidth="lg" sx={{ paddingTop: '20px' }}>
-      <SearchBar setSearchTerm={setSearchTerm} />
       <Grid container spacing={3}>
-        <Grid item xs={12} md={8}>
-          <ProductTable products={filteredProducts} addToCart={addToCart} />
+        {/* Barra de búsqueda */}
+        <Grid item xs={12}>
+          <SearchBar setSearchTerm={setSearchTerm} />
         </Grid>
+        
+        {/* Tabla de productos */}
+        <Grid item xs={12} md={8}>
+          <ProductTable products={products} addToCart={addToCart} />
+        </Grid>
+        
+        {/* Barra lateral con el carrito */}
         <Grid item xs={12} md={4}>
-          <Cart cart={cart} setCart={setCart} />
+          <Cart cart={cart} setCart={setCart} />  {/* Cart pasa a ser parte del layout */}
         </Grid>
       </Grid>
     </Container>

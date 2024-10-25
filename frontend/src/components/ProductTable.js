@@ -16,11 +16,11 @@ const ProductTable = ({ products, addToCart }) => {
         </TableHead>
         <TableBody>
           {products.map((product, index) => (
-            <TableRow key={product.code}>
+            <TableRow key={product.codigo}>
               <TableCell>{index + 1}</TableCell>
-              <TableCell>{product.name}</TableCell>
-              <TableCell>{product.code}</TableCell>
-              <TableCell>${product.value.toFixed(2)}</TableCell>
+              <TableCell>{product.nombre}</TableCell>
+              <TableCell>{product.codigo}</TableCell>
+              <TableCell>${product.precio.toFixed(2)}</TableCell>
               <TableCell>
                 <Button 
                   variant="contained" 

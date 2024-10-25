@@ -8,7 +8,7 @@ const SearchBar = ({ setSearchTerm }) => {
         label="Search products..."
         variant="outlined"
         fullWidth
-        onChange={(e) => setSearchTerm(e.target.value)}
+        onChange={(e) => setSearchTerm(e.target.value)}  // Actualiza el término de búsqueda
       />
     </div>
   );
