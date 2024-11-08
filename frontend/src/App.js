@@ -93,6 +93,12 @@ const App = () => {
       // Aquí puedes realizar la acción deseada
       console.log("Código detectado:", barcodeOnlyNumbers);
 
+      const idCliente = '4005566778895'; // TODO: Parametrizar esto
+
+      if (idCliente === barcodeOnlyNumbers) {
+        handleSell();
+      }
+
       // Busca el producto en la base de datos
       const fetchProduct = async () => {
         try {
@@ -117,6 +123,33 @@ const App = () => {
     }
   }, [barcode]);
 
+  // Función para procesar la venta
+  const handleSell = async () => {
+    if (cart.length === 0) {
+      alert("El carrito está vacío");
+      return;
+    }
+
+    try {
+      // Lógica para registrar la venta
+      const response = await axios.post('http://localhost:3001/ventas', {
+        cliente_id: 1,  // Este es un valor fijo de ejemplo. Puedes modificarlo para recibirlo del usuario.
+        productos: cart.map(item => ({
+          id: item.codigo,
+          cantidad: item.quantity
+        }))
+      });
+
+      // Mostramos mensaje de éxito y limpiamos el carrito
+      alert(response.data.mensaje);
+      setCart([]);  // Limpiamos el carrito después de la venta
+
+    } catch (error) {
+      console.error('Error procesando la venta:', error);
+      alert('Error procesando la venta');
+    }
+  };
+
   // Si hay error, mostramos el mensaje
   if (error) {
     return <p>{error}</p>;
@@ -137,7 +170,8 @@ const App = () => {
 
         {/* Barra lateral con el carrito */}
         <Grid item xs={12} md={4}>
-          <Cart cart={cart} setCart={setCart} />{" "}
+          <Cart cart={cart} setCart={setCart} handleSell={handleSell} />
+          {" "}
           {/* Cart pasa a ser parte del layout */}
         </Grid>
       </Grid>
