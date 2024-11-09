@@ -7,7 +7,7 @@ router.post("/", (req, res) => {
 
   db.serialize(() => {
     db.run("BEGIN TRANSACTION");
-
+    // debugger
     db.run(
       "INSERT INTO ventas (cliente_id, fecha) VALUES (?, ?)",
       [cliente_id, new Date().toISOString()],
