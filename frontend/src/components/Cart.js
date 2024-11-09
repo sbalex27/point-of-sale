@@ -22,7 +22,7 @@ const Cart = ({ cart, setCart, handleSell }) => {
         {cart.length > 0 ? (
           cart.map(item => (
             <ListItem key={item.codigo} sx={{ display: 'flex', justifyContent: 'space-between' }}>
-              <ListItemText primary={`${item.nombre} - $${item.precio.toFixed(2)} x ${item.quantity}`} />
+              <ListItemText primary={`${item.nombre} - $${item.precio} x ${item.quantity}`} />
               <Box>
                 <Button 
                   variant="contained" 
@@ -45,7 +45,7 @@ const Cart = ({ cart, setCart, handleSell }) => {
           <Typography variant="body1">No items in the cart</Typography>
         )}
       </List>
-      <Typography variant="h6" gutterBottom>Total: ${total.toFixed(2)}</Typography>
+      <Typography variant="h6" gutterBottom>Total: ${total}</Typography>
       <Button variant="contained" color="success" fullWidth onClick={handleSell}>Sell</Button>
     </Box>
   );

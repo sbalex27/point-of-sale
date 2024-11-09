@@ -135,7 +135,7 @@ const App = () => {
       const response = await axios.post('http://localhost:3001/ventas', {
         cliente_id: 1,  // Este es un valor fijo de ejemplo. Puedes modificarlo para recibirlo del usuario.
         productos: cart.map(item => ({
-          id: item.codigo,
+          id: item.id,
           cantidad: item.quantity
         }))
       });

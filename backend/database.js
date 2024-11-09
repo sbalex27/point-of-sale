@@ -1,55 +1,58 @@
-const sqlite3 = require("sqlite3").verbose();
-const fs = require('fs');
+const mysql = require('mysql2/promise');
 
-// Ensure the database file is writable
-const dbPath = "./punto_venta.db";
-// fs.chmodSync(dbPath, 0o666);
-
-// Crear o abrir la base de datos
-const db = new sqlite3.Database(dbPath, sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
-  if (err) {
-    console.error("Error al abrir la base de datos:", err.message);
-  } else {
-    console.log("Conectado a la base de datos SQLite.");
-  }
+// Crear conexión a la base de datos MySQL
+const db = mysql.createPool({
+  host: process.env.DB_HOST || 'localhost',
+  user: process.env.DB_USER || 'user',
+  password: process.env.DB_PASSWORD || 'password',
+  database: process.env.DB_NAME || 'punto_venta'
 });
 
-db.serialize(() => {
-  db.run(`
+async function initializeDatabase() {
+  const connection = await db.getConnection();
+  try {
+    await connection.query(`
       CREATE TABLE IF NOT EXISTS clientes (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        nombre TEXT NOT NULL
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        nombre VARCHAR(255) NOT NULL
       )
     `);
 
-  db.run(`
+    await connection.query(`
       CREATE TABLE IF NOT EXISTS productos (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        nombre TEXT NOT NULL,
-        precio REAL NOT NULL,
-        codigo TEXT NOT NULL
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        nombre VARCHAR(255) NOT NULL,
+        precio DECIMAL(10, 2) NOT NULL,
+        codigo VARCHAR(255) NOT NULL
       )
     `);
 
-  db.run(`
+    await connection.query(`
       CREATE TABLE IF NOT EXISTS ventas (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        fecha TEXT NOT NULL,
-        cliente_id INTEGER NOT NULL,
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        fecha DATETIME NOT NULL,
+        cliente_id INT NOT NULL,
         FOREIGN KEY (cliente_id) REFERENCES clientes(id)
       )
     `);
 
-  db.run(`
+    await connection.query(`
       CREATE TABLE IF NOT EXISTS item_ventas (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        venta_id INTEGER NOT NULL,
-        producto_id INTEGER NOT NULL,
-        cantidad INTEGER NOT NULL,
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        venta_id INT NOT NULL,
+        producto_id INT NOT NULL,
+        cantidad INT NOT NULL,
         FOREIGN KEY (venta_id) REFERENCES ventas(id),
         FOREIGN KEY (producto_id) REFERENCES productos(id)
       )
     `);
+  } finally {
+    connection.release();
+  }
+}
+
+initializeDatabase().catch(err => {
+  console.error("Error al inicializar la base de datos:", err.message);
 });
 
 module.exports = db;

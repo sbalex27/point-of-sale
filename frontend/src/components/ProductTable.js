@@ -20,7 +20,7 @@ const ProductTable = ({ products, addToCart }) => {
               <TableCell>{index + 1}</TableCell>
               <TableCell>{product.nombre}</TableCell>
               <TableCell>{product.codigo}</TableCell>
-              <TableCell>${product.precio.toFixed(2)}</TableCell>
+              <TableCell>${product.precio}</TableCell>
               <TableCell>
                 <Button 
                   variant="contained" 
