@@ -1,7 +1,12 @@
 const sqlite3 = require("sqlite3").verbose();
+const fs = require('fs');
+
+// Ensure the database file is writable
+const dbPath = "./punto_venta.db";
+fs.chmodSync(dbPath, 0o666);
 
 // Crear o abrir la base de datos
-const db = new sqlite3.Database("./punto_venta.db", (err) => {
+const db = new sqlite3.Database(dbPath, sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
   if (err) {
     console.error("Error al abrir la base de datos:", err.message);
   } else {
